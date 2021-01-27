@@ -6,19 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://www.junshuoli.cn">
-  <title>开源项目Tinyhttpd详解第一篇 详解main函数 | 李军硕的个人博客</title>
+  <title>桨声灯影里的秦淮河 | 李军硕的个人博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="[Tinyhttpd](https:&#x2F;&#x2F;github.com&#x2F;ezlippi&#x2F;tinyhttpd)   &amp;emsp;&amp;emsp;这个项目是我最近在论坛发现的写的很优秀的一个学习C和Linux方面知识的一个开源代码，大概只有五百多行，但是麻雀虽小,五脏俱全嘛～通过这个程序可以了解服务器程序的本质，何乐不为呢！！！！！&amp;emsp;&amp;emsp;首先要说明socket是个什么东西呀（主要是担心有些兄弟看">
+  <meta name="description" content="朱自清强烈建议与网易云音乐的清华大学广播台文学组的播音：朱自清《桨声灯影里的秦淮河》一同食用！！！！！链接 ：桨声灯影里的秦淮河一九二三年八月的一晚，我和平伯同游秦淮河，平伯是初泛，我是重来了。我们雇了一只“七板子”，在夕阳已去，皎月方来的时候，便下了船。于是桨声汩——汩，我们开始领略那晃荡着蔷薇色的历史的秦淮河的滋味了。 秦淮河里的船，比北京万生园，颐和园的船好，比西湖的船好，比扬州瘦西湖的船也">
 <meta property="og:type" content="article">
-<meta property="og:title" content="开源项目Tinyhttpd详解第一篇 详解main函数">
-<meta property="og:url" content="http://www.junshuoli.cn/2021/01/27/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/index.html">
+<meta property="og:title" content="桨声灯影里的秦淮河">
+<meta property="og:url" content="http://www.junshuoli.cn/2020/05/31/%E6%A1%A8%E5%A3%B0%E7%81%AF%E5%BD%B1%E9%87%8C%E7%9A%84%E7%A7%A6%E6%B7%AE%E6%B2%B3/index.html">
 <meta property="og:site_name" content="李军硕的个人博客">
-<meta property="og:description" content="[Tinyhttpd](https:&#x2F;&#x2F;github.com&#x2F;ezlippi&#x2F;tinyhttpd)   &amp;emsp;&amp;emsp;这个项目是我最近在论坛发现的写的很优秀的一个学习C和Linux方面知识的一个开源代码，大概只有五百多行，但是麻雀虽小,五脏俱全嘛～通过这个程序可以了解服务器程序的本质，何乐不为呢！！！！！&amp;emsp;&amp;emsp;首先要说明socket是个什么东西呀（主要是担心有些兄弟看">
+<meta property="og:description" content="朱自清强烈建议与网易云音乐的清华大学广播台文学组的播音：朱自清《桨声灯影里的秦淮河》一同食用！！！！！链接 ：桨声灯影里的秦淮河一九二三年八月的一晚，我和平伯同游秦淮河，平伯是初泛，我是重来了。我们雇了一只“七板子”，在夕阳已去，皎月方来的时候，便下了船。于是桨声汩——汩，我们开始领略那晃荡着蔷薇色的历史的秦淮河的滋味了。 秦淮河里的船，比北京万生园，颐和园的船好，比西湖的船好，比扬州瘦西湖的船也">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-01-27T13:55:21.000Z">
-<meta property="article:modified_time" content="2021-01-27T13:52:06.000Z">
+<meta property="article:published_time" content="2020-05-31T11:07:32.000Z">
+<meta property="article:modified_time" content="2020-05-31T13:14:21.000Z">
 <meta property="article:author" content="JunshuoLi">
-<meta property="article:tag" content="C语言开源项目">
+<meta property="article:tag" content="随笔">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="李军硕的个人博客" type="application/atom+xml">
@@ -155,79 +155,27 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-开源项目Tinyhttpd详解第一篇 详解sockaddr_in，socklen" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-桨声灯影里的秦淮河" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      开源项目Tinyhttpd详解第一篇 详解main函数
+      桨声灯影里的秦淮河
     </h1>
   
 
         
-        <a href="/2021/01/27/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/" class="archive-article-date">
-  	<time datetime="2021-01-27T13:55:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-01-27</time>
+        <a href="/2020/05/31/%E6%A1%A8%E5%A3%B0%E7%81%AF%E5%BD%B1%E9%87%8C%E7%9A%84%E7%A7%A6%E6%B7%AE%E6%B2%B3/" class="archive-article-date">
+  	<time datetime="2020-05-31T11:07:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-31</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <br>
-[Tinyhttpd](https://github.com/ezlippi/tinyhttpd) 
-
-<p>&emsp;&emsp;这个项目是我最近在论坛发现的写的很优秀的一个学习C和Linux方面知识的一个开源代码，大概只有五百多行，但是麻雀虽小,五脏俱全嘛～通过这个程序可以了解服务器程序的本质，何乐不为呢！！！！！<br>&emsp;&emsp;首先要说明socket是个什么东西呀（主要是担心有些兄弟看不懂。。比如我哈哈哈哈）<br>&emsp;&emsp;socket，在中国翻译过来叫做套接字，主要是用来进行应用程序间通信的一个数据结构，当初是Unix传承下来的一种重要的信息传递方式，在服务方和客户方进行通信的之前，双方必须知道ip地址和端口号，服务方收到客户方发来的连接请求，故首先向系统申请一个socket，然后服务方以一种emmmmmm类似死循环的方式等待客户方的连接，当客户方在发出连接请求并且服务方收到以后，服务方会选择接受连接或者拒绝连接，如果接受连接，服务方就会自动申请一个新的socket与客户端进行连接，而服务方原来的socket继续在那里死循环（这个意思并不准确呀～心里大概懂那个意思就好啦！！）。<br>&emsp;&emsp;用我当年追小学姐的事情来举例，我（客户方）知道小学姐的地址和宿舍号，我（客户方）就去西华香馨园宿管大妈那里（申请一个连接请求）进行emmmmmmm亲切友好的交流。。。。，然后宿管大妈（服务方）找到小学姐（申请一个新的socket），我和小学姐一起去恰饭～～～（连接成功）。<br>&emsp;&emsp;废话不多说，看C程序就要先看main函数啦，具体代码如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> server_sock = <span class="number">-1</span>;</span><br><span class="line">    u_short port = <span class="number">4000</span>;</span><br><span class="line">    <span class="keyword">int</span> client_sock = <span class="number">-1</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_name</span>;</span></span><br><span class="line">    <span class="keyword">socklen_t</span>  client_name_len = <span class="keyword">sizeof</span>(client_name);</span><br><span class="line">    <span class="keyword">pthread_t</span> newthread;</span><br><span class="line"></span><br><span class="line">    server_sock = startup(&amp;port);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"httpd running on port %d\n"</span>, port);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        client_sock = accept(server_sock,</span><br><span class="line">                (struct sockaddr *)&amp;client_name,</span><br><span class="line">                &amp;client_name_len);</span><br><span class="line">        <span class="keyword">if</span> (client_sock == <span class="number">-1</span>)</span><br><span class="line">            error_die(<span class="string">"accept"</span>);</span><br><span class="line">        <span class="comment">/* accept_request(&amp;client_sock); */</span></span><br><span class="line">        <span class="keyword">if</span> (pthread_create(&amp;newthread , <span class="literal">NULL</span>, (<span class="keyword">void</span> *)accept_request, (<span class="keyword">void</span> *)(<span class="keyword">intptr_t</span>)client_sock) != <span class="number">0</span>)</span><br><span class="line">            perror(<span class="string">"pthread_create"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">close</span>(server_sock);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;这里面有很多个函数和字段很不常见，具体如下:</p>
-<ol>
-<li>sockaddr_in<br>&emsp;&emsp;这个结构体是用来用来处理网路通信的地址，它主要是在头文件&lt;netinet/in.h&gt;或&lt;arpa/inet.h&gt;定义的，这个结构体的内部数据结构主要如下: <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    sa_family sin_family;</span><br><span class="line">    <span class="keyword">uint16_t</span> sin_port;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">in_addr</span> <span class="title">sin_addr</span>;</span></span><br><span class="line">    <span class="keyword">char</span> sin_zero[<span class="number">8</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">in_addr</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    In_addr_t s_addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-<ul>
-<li>in_family: 地址家族，可以理解为一系列相似的通信协议的族群，占用2字节，一般它的值主要为AF_INET，AF_INET6和AF_UNSPE。其中AF_INET不能返回任何任何IPV6相关的地址信息，AF_INET6不能返回任何IPV4地址信息，AF_UNSPEC则意味着函数返回的是适用于指定主机名和服务名且适合任何协议族的地址。</li>
-<li>sin_port: 端口号</li>
-<li>sin_addr：IPv4／IPv6地址</li>
-<li>sin_zero[8]:这个奇怪的东西。。。。。我们其实是不用管的，但是说到这个东西必须提到下面这个sockaddr结构，下面这个结构是程序员无法编辑的，即在操作系统中使用的一种socket数据结构，sa_family和上面的定义是一样的，而sa_data则包括上面的端口号和ip地址。sockaddr_in的用处本来是便于程序员进行端口和ip地址的编辑，在系统中会被强行转换成sockaddr，他们两个都是占有16个字节，所以。。。sin_zero[8]就是为了让他们两个保持大小相同而保留的空字节。 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> short sa_family;</span><br><span class="line">    <span class="keyword">char</span> sa_data[<span class="number">14</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<ol start="2">
-<li>socklen_t<br>&emsp;&emsp;这个数据结构在网络上资料很乱，总的来说是哈指的是现在socket数据结构的长度，在当初的时候它并不叫这个名字，而是叫做size_t，而size_t类型在64位的系统上并不能和BSD套接字接口所要求的保持一致，故他们改了个名字叫做socklen_t，然而不管怎么变，他们都是int数据类型的马甲罢了。。。。。。。 </li>
-<li>pthread_t<br>&emsp;&emsp;用来声明Linux中的线程ID，数据结构为：unsigned long int；</li>
-<li>sizeof操作符<br>&emsp;&emsp;sizeof在我的印象里都是一个用来返回某个数据类型所占的内存，然而前段时间被人家问到了基本用法，都忘了。。。。所以写出来整理一下。</li>
-</ol>
-<ul>
-<li><p>普通用法</p>
-  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span>(type)/<span class="keyword">sizeof</span> var_name&lt;br&gt;</span><br></pre></td></tr></table></figure>
-<p>  &emsp;&emsp;sizeof是以字节形式给出了所操作数据的大小。前一种的格式都喜闻乐见，而后一种对我来说很少见，当用这种格式时主要是用来操作变量和对象，但是如果是操作一个类型必须要添加括号。但是由这里也可以看出来sizeof并不是函数！！！！因为一个正常的函数是需要加括号的。 而且sizeof也不是一种操作符！！！！，为什么这么说呢，可以看下面的例子：</p>
-  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a=<span class="number">0</span>;</span><br><span class="line"><span class="built_in">cout</span>&lt;&lt;<span class="keyword">sizeof</span>(a=<span class="number">4</span>)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line"><span class="built_in">cout</span>&lt;&lt;a&lt;&lt;<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure>
-<p>  &emsp;&emsp;这段程序的输出结果为：</p>
-  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4</span></span><br><span class="line"><span class="number">0</span></span><br></pre></td></tr></table></figure>
-<p>  &emsp;&emsp;在当初在其他大佬的博客上看到这段程序时，我发现这个东西真的好迷，因为我认为答案是4和3，后来把sizeof看作是一种编译预处理就想的过去了，因为显然在sizeof处理阶段显然括号内并没有编译，而是被替换成类型int。<br>  sizeof不能用来操作未知存储大小的数据类型，未知内容的结构和联合类型,void类型。例如：</p>
-  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span>(<span class="built_in">max</span>);<span class="comment">//int max()</span></span><br><span class="line"><span class="keyword">sizeof</span>(char_v);<span class="comment">//char char_v[MAX]，MAX未赋值</span></span><br><span class="line"><span class="keyword">sizeof</span>(<span class="keyword">void</span>);</span><br></pre></td></tr></table></figure>
-<p>  &emsp;&emsp;以上用法全都是错误的！！！<br>  &emsp;&emsp;以上用法全都是错误的！！！<br>  &emsp;&emsp;以上用法全都是错误的！！！</p>
-</li>
-<li><p>sizeof的基本用法<br>  &emsp;&emsp;上面的这些7788的东西，说出来没有什么依据，下面通过一些常用的用法来认识sizeof的用法：</p>
-  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span>(<span class="keyword">char</span>);/<span class="keyword">sizeof</span>(<span class="keyword">signed</span> <span class="keyword">char</span>)/<span class="keyword">sizeof</span>(<span class="keyword">unsigned</span> <span class="keyword">char</span>)</span><br><span class="line"><span class="keyword">sizeof</span>(p);<span class="comment">//int *p或者string *p或者char*********</span></span><br><span class="line"><span class="keyword">sizeof</span>(a);<span class="comment">//int a[10]</span></span><br><span class="line"><span class="keyword">sizeof</span>(b);<span class="comment">//char b[]="hello";</span></span><br></pre></td></tr></table></figure>
-<p>  &emsp;&emsp;1和2的结果都是1,不管是什么类型，sizeof后的结果都是取决于操作系统的，在32位操作系统上面就是4，在64位上就是8,sizeof(a)在这里等价于数组长度乘以sizeof(int),换句话说：sizeof(a)=10*sizeof(int)。sizeof(b)等于6，原因是因为字符串后面一般都会有个”\0”，这个。。。预编译符会算进去的！！！！！</p>
-  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> b[<span class="number">20</span>]=&#123;<span class="number">3</span>,<span class="number">4</span>&#125;;</span><br><span class="line"><span class="keyword">char</span> c[<span class="number">2</span>][<span class="number">3</span>]=&#123;<span class="string">"aa"</span>,<span class="string">"bb"</span>&#125;;</span><br><span class="line"><span class="keyword">sizeof</span>(b);\\<span class="number">20</span>*<span class="number">4</span></span><br><span class="line"><span class="keyword">sizeof</span>(c);\\<span class="number">6</span></span><br></pre></td></tr></table></figure>
-<p>  &emsp;&emsp;以上的例子可以看的出来sizeof的值并不取决于赋值的情况，数组的大小取决于它在编译时被分配的空间，也就是各维度乘以数组元素的大小。</p>
-</li>
-<li><p>函数的sizeof使用方法<br>&emsp;&emsp;sizeof并不能测量整个函数占用的内存大小！！！！而是测量数组返回值类型的大小。但是要在这期间注意不能对返回值类型为空或者仅仅对一个函数名求值，在函数有参数时，必须加上参数表！！！</p>
-</li>
-<li><p>进阶用法 诡异的函数对齐问题<br>&emsp;&emsp;众所周知，C语言中存在这两种类型：struct和union，而在C++中区别于c语言存在更复杂的class类型，而对这三种数据类型操作时，代码如下：</p>
- <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sample</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">double</span> a;</span><br><span class="line">    <span class="keyword">char</span> b;</span><br><span class="line">    <span class="keyword">int</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p> &emsp;&emsp;对于刚开始入门的兄弟来说，sizeof(sample)=sizeof(double)+sizeof(char)+sizeof(int)。。。然而并不是这样子的，编译器对一些变量的起始地址做了“对齐”处理。在默认情况下，编译器规定各成员变量存放的起始地址相对于结构的起始地址的偏移量必须为该变量的类型所占用的字节数的倍数。在32位系统中，具体偏移方法如下：<br></p>
- <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span>  <span class="comment">//偏移量必须为sizeof(char)即1的倍数  </span></span><br><span class="line"><span class="keyword">int</span>  <span class="comment">//偏移量必须为sizeof(int)即4的倍数  </span></span><br><span class="line"><span class="keyword">float</span>  <span class="comment">//偏移量必须为sizeof(float)即4的倍数  </span></span><br><span class="line"><span class="keyword">double</span>  <span class="comment">//偏移量必须为sizeof(double)即8的倍数  </span></span><br><span class="line">short  <span class="comment">//偏移量必须为sizeof(short)即2的倍数</span></span><br></pre></td></tr></table></figure>
-<p> &emsp;&emsp;结构体中的变量在申请空间时，是按照顺序来申请空间，并且按照上面所示的对齐方式来调整位置，并且按照上述要求填充空字节。这样子说跟没说一样，所以说个例子吧：<br> &emsp;&emsp;当为上面的sample结构体分配空间时，肯定是先为double类型变量分配内存，他的起始地址和结构体的起始地址相同，偏移量0（正好为sizeof（double）的倍数），它占的内存为8字节这个就不用说了；然后为第二个char类型变量分配内存，可以为它分配的地址相对于结构的偏移地址为8，满足对齐方式可以分配，它占的内存为1个字节，完美！！！！；然后为第三个int类型变量分配内存，下一个可以分配的地址对于结构的偏移量为9，不是sizeof（int）的倍数，为了满足上述对偏移量balabala的诡异约束问题，编译器会填充三个空字节。。。使得下一个可分配地址对于结构原始地址偏移为12，满足要求，分配内存，完美！！！！！所以占用的空间大小为：8+1+3+4=16字节。（这个东西我记得在19年12月份我考浙江大学的计算机系时。。。408考试里考过，当时真的搞不懂，现在终于搞懂了，开心！！！！！！）</p>
-</li>
-</ul>
-<ol start="5">
-<li>startup函数<br>&emsp;&emsp;废话不多说，直接上代码：<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">startup</span><span class="params">(u_short *port)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="keyword">int</span> httpd = <span class="number">0</span>;</span><br><span class="line"> <span class="keyword">int</span> on = <span class="number">1</span>;</span><br><span class="line"> <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">name</span>;</span></span><br><span class="line"></span><br><span class="line"> httpd = socket(PF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line"> <span class="keyword">if</span> (httpd == <span class="number">-1</span>)</span><br><span class="line">     error_die(<span class="string">"socket"</span>);</span><br><span class="line"> <span class="built_in">memset</span>(&amp;name, <span class="number">0</span>, <span class="keyword">sizeof</span>(name));</span><br><span class="line"> name.sin_family = AF_INET;</span><br><span class="line"> name.sin_port = htons(*port);</span><br><span class="line"> name.sin_addr.s_addr = htonl(INADDR_ANY);</span><br><span class="line"> <span class="keyword">if</span> ((setsockopt(httpd, SOL_SOCKET, SO_REUSEADDR, &amp;on, <span class="keyword">sizeof</span>(on))) &lt; <span class="number">0</span>)  </span><br><span class="line"> &#123;  </span><br><span class="line">     error_die(<span class="string">"setsockopt failed"</span>);</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">if</span> (bind(httpd, (struct sockaddr *)&amp;name, <span class="keyword">sizeof</span>(name)) &lt; <span class="number">0</span>)</span><br><span class="line">     error_die(<span class="string">"bind"</span>);</span><br><span class="line"> <span class="keyword">if</span> (*port == <span class="number">0</span>)  <span class="comment">/* if dynamically allocating a port */</span></span><br><span class="line"> &#123;</span><br><span class="line">     <span class="keyword">socklen_t</span> namelen = <span class="keyword">sizeof</span>(name);</span><br><span class="line">     <span class="keyword">if</span> (getsockname(httpd, (struct sockaddr *)&amp;name, &amp;namelen) == <span class="number">-1</span>)</span><br><span class="line">         error_die(<span class="string">"getsockname"</span>);</span><br><span class="line">     *port = ntohs(name.sin_port);</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">if</span> (<span class="built_in">listen</span>(httpd, <span class="number">5</span>) &lt; <span class="number">0</span>)</span><br><span class="line">     error_die(<span class="string">"listen"</span>);</span><br><span class="line"> <span class="keyword">return</span>(httpd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-&emsp;&emsp;这个函数的注释。。。。其实我也看不懂，建议谷歌翻译一下。大概意思是说哈，开启一个线程在参数中的端口不为0的情况下监听一个端口，如果端口为0的话，那么就随机分配一个接口来使用。<br>&emsp;&emsp;接下来就是socket函数，这个函数是在sys/types.h头文件中定义的一个函数，这个函数的参数如下：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">(<span class="keyword">int</span> domain, <span class="keyword">int</span> type, <span class="keyword">int</span> protocol)</span></span>;</span><br></pre></td></tr></table></figure>
-&emsp;&emsp;这个函数的作用是用来建立一个协议族为domain，协议类型为type，协议编号为protocol的套接字描述符，如果函数调用成功的话，会返回标示这个套接字的文件描述符，如果失败就会返回-1。<br>&emsp;&emsp; domain这个参数是用来设置网路通信的域，socket函数根据这个参数来选择通信协议的族，通信协议在头文件sys/socket.h中定义。<br>&emsp;&emsp;type用于设置套接字通信的类型，主要有SOCKET_STREAM(流式套接字)，SOCK_DGRAM(数据包套接字)等。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SOCK_STREAM<span class="comment">//tcp连接，提供序列化的可靠的双向连接的字节流</span></span><br><span class="line">SOCK_DGRAM<span class="comment">//支持udp连接</span></span><br><span class="line">SOCK_SEQPACKET<span class="comment">//序列化包，提供一个序列化的，可靠的，双向的基本连接的数据连接通道，数据长度定常。</span></span><br><span class="line">SOCK_RAW<span class="comment">//提供原始网络协议访问</span></span><br><span class="line">SOCK-RDM<span class="comment">//提供可靠的数据报文，不过可能数据会有乱序</span></span><br><span class="line">SOCK_PACKET<span class="comment">//这是一个专有类型，不过能够在通用程序中使用</span></span><br></pre></td></tr></table></figure></li>
-<li></li>
-</ol>
+        <h2 id="朱自清"><a href="#朱自清" class="headerlink" title="朱自清"></a>朱自清</h2><h2 id="强烈建议与网易云音乐的清华大学广播台文学组的播音：朱自清《桨声灯影里的秦淮河》一同食用！！！！！"><a href="#强烈建议与网易云音乐的清华大学广播台文学组的播音：朱自清《桨声灯影里的秦淮河》一同食用！！！！！" class="headerlink" title="强烈建议与网易云音乐的清华大学广播台文学组的播音：朱自清《桨声灯影里的秦淮河》一同食用！！！！！"></a>强烈建议与网易云音乐的清华大学广播台文学组的播音：朱自清《桨声灯影里的秦淮河》一同食用！！！！！</h2><p>链接 ：<a href="https://music.163.com/#/dj?id=2060494861&userid=260088210/" target="_blank" rel="noopener">桨声灯影里的秦淮河</a><br><br>一九二三年八月的一晚，我和平伯同游秦淮河，平伯是初泛，我是重来了。我们雇了一只“七板子”，在夕阳已去，皎月方来的时候，便下了船。于是桨声汩——汩，我们开始领略那晃荡着蔷薇色的历史的秦淮河的滋味了。 秦淮河里的船，比北京万生园，颐和园的船好，比西湖的船好，比扬州瘦西湖的船也好。这几处的船不是觉着笨，就是觉着简陋，局促；都不能引起乘客们的情韵，如秦淮河的船一样。秦淮河的船约略可分为两种：一是大船；一是小船，就是所谓“七板子”。大船舱口阔大，可容二三十人。里面陈设着字画和光洁的红木家具，桌上一律嵌着冰凉的大理石面。窗格雕镂颇细，使人起柔腻之感。窗格里映着红色蓝色的玻璃；玻璃上有精致的花纹，也颇悦人目。“七板子”规模虽不及大船，但那淡蓝色的栏杆，空敝3的舱，也足系人情思。而最出色处却在它的舱前。舱前是甲板上的一部，上面有弧形的顶，西边用疏疏的栏杆支着。里面通常放着两张藤的躺椅。躺下，可以谈天，可以望远，可以顾盼两岸的河房。大船上也有这个，但在小船上更觉清隽罢了。舱前的顶下，一律悬着灯彩；灯的多少，明暗，彩苏的精粗，艳晦，是不一的，但好歹总还你一个灯彩。这灯彩实在是最能勾人的东西。夜幕垂垂地下来时，大小船上都点起灯火。从两重玻璃里映出那辐射着的黄黄的散光，反晕出一片朦胧的烟霭；透过这烟霭，在黯黯的水波里，又逗起缕缕的明漪。在这薄霭和微漪里，听着那悠然的间歇的桨声，谁能不被引入他的美梦去呢？只愁梦太多了，这些大小船儿如何载得起呀？我们这时模模糊糊的谈着明末的秦淮河的艳迹，如《桃花扇》及《板桥杂记》里所载的。我们真神往了。我们仿佛亲见那时华灯映水，画舫凌波的光景了。于是我们的船便成了历史的重载了。我们终于恍然秦淮河的船所以雅丽过于他处，而又有奇异的吸引力的，实在是许多历史的影象使然了。<br><br>秦淮河的水是碧阴阴的；看起来厚而不腻，或者是六朝金粉所凝么？我们初上船的时候，天色还未断黑，那漾漾的柔波是这样恬静，委婉，使我们一面有水阔天空之想，一面又憧憬着纸醉金迷之境了。等到灯火明时，阴阴的变为沈沈了：黯淡的水光，像梦一般；那偶然闪烁着的光芒，就是梦的眼睛了。我们坐在舱前，因了那隆起的顶棚，仿佛总是昂着首向前走着似的；于是飘飘然如御风而行的我们，看着那些自在的湾泊着的船，船里走马灯般的人物，便像是下界一般，迢迢的远了，又像在雾里看花，尽朦朦胧胧的。这时我们已过了利涉桥，望见东关头了。沿路听见断续的歌声：有从沿河的妓楼飘来的，有从河上船里度来的。我们明知那些歌声，只是些因袭的言词，从生涩的歌喉里机械的发出来的；但它们经了夏夜的微风的吹漾和水波的摇拂，袅娜着到我们耳边的时候，已经不单是她们的歌声，而混着微风和河水的密语了。于是我们不得不被牵惹着，震撼着，相与浮沉于这歌声里了。从东关头转湾，不久就到大中桥。大中桥共有三个桥拱，都很阔大，俨然是三座门儿；使我们觉得我们的船和船里的我们，在桥下过去时，真是太无颜色了。桥砖是深褐色，表明它的历史的长久；但都完好无缺，令人太息于古昔工程的坚美。桥上两旁都是木壁的房子，中间应该有街路？这些房子都破旧了，多年烟熏的迹，遮没了当年的美丽。我想像秦淮河的极盛时，在这样宏阔的桥上，特地盖了房子，必然是髹漆得富富丽丽的；晚间必然是灯火通明的，现在却只剩下一片黑沉沉！但是桥上造着房子，毕竟使我们多少可以想见往日的繁华；这也慰情聊胜无了。过了大中桥，便到了灯月交辉，笙歌彻夜的秦淮河，这才是秦淮河的真面目哩。<br><br>大中桥外，顿然空阔，和桥内两岸排着密密的人家的景象大异了。一眼望去，疏疏的林，淡淡的月，衬着蔚蓝的天，颇像荒江野渡光景；那边呢，郁丛丛的，阴森森的，又似乎藏着无边的黑暗：令人几乎不信那是繁华的秦淮河了。但是河中眩晕着的灯光，纵横着的画舫，悠扬着的笛韵，夹着那吱吱的胡琴声，终于使我们认识绿如茵陈酒的秦淮水了。此地天裸露着的多些，故觉夜来的独迟些；从清清的水影里，我们感到的只是薄薄的夜——这正是秦淮河的夜。大中桥外，本来还有一座复成桥，是船夫口中的我们的游踪尽处，或也是秦淮河繁华的尽处了。我的脚曾踏过复成桥的脊，在十三四岁的时候。但是两次游秦准河，却都不曾见着复成桥的面；明知总在前途的，却常觉得有些虚无缥缈似的。我想，不见倒也好。这时正是盛夏。我们下船后，藉着9新生的晚凉和河上的微风，暑气已渐渐消散；到了此地，豁然开朗，身子顿然轻了——习习的清风荏苒在面上，手上，衣上，这便又感到了一缕新凉了。南京的日光，大概没有杭州猛烈；西湖的夏夜老是热蓬蓬的，水像沸着一般，秦淮河的水却尽是这样冷冷地绿着。任你人影的憧憧，歌声的扰扰，总像隔着一层薄薄的绿纱面幂似的；它尽是这样静静的，冷冷的绿着。我们出了大中桥，走不上半里路，船夫便将船划到一旁，停了桨由它宕着。他以为那里正是繁华的极点，再过去就是荒凉了；所以让我们多多赏鉴一会儿。他自己却静静的蹲着。他是看惯这光景的了，大约只是一个无可无不可。这无可无不可，无论是升的沉的，总之，都比我们高了。<br><br>那时河里热闹极了；船大半泊着，小半在水上穿梭似的来往。停泊着的都在近市的那一边，我们的船自然也夹在其中。因为这边略略的挤，便觉得那边十分的疏了。在每一只船从那边过去时，我们能画出它的轻轻的影和曲曲的波，在我们的心上；这显着是空，且显着是静了。那时处处都是歌声和凄厉的胡琴声，圆润的喉咙，确乎是很少的。但那生涩的，尖脆的调子能使人有少年的，粗率不拘的感觉。也正可快我们的意。况且多少隔开些儿听着。因为想像与渴慕的做美，总觉更有滋味；而竞发的喧嚣，抑扬的不齐，远近的杂沓，和乐器的嘈嘈切切，合成另一意味的谐音，也使我们无所适从，如随着大风而走。这实在因为我们的心枯涩久了，变为脆弱；故偶然润泽一下，便疯狂似的不能自主了。但秦淮河确也腻人。即如船里的人面，无论是和我们一堆儿泊着的，无论是从我们眼前过去的，总是模模糊糊的，甚至渺渺茫茫的；任你张圆了眼睛，揩净了眦垢，也是枉然。这真够人想呢。在我们停泊的地方，灯光原是纷然的；不过这些灯光都是黄而有晕的。黄已经不能明了，再加上了晕，便更不成了。灯愈多，晕就愈甚；在繁星般的黄的交错里，秦淮河仿佛笼上了一团光雾。光芒与雾气腾腾的晕着，什么都只剩了轮廓了；所以人面的详细的曲线，便消失于我们的眼底了。但灯光究竟夺不了那边的月色；灯光是浑的，月色是清的。在浑沌的灯光里，渗入一派清辉，却真是奇迹！那晚月儿已瘦削了两三分，她晚妆才罢，盈盈的上了柳梢头。天是蓝得可爱，仿佛一汪水似的；月儿便更出落得精神了。岸上原有三株两株的垂杨树，淡淡的影子，在水里摇曳着。它们那柔细的枝条浴着月光，就像一支支美人的臂膊，交互的缠着，挽着；又像是月儿披着的发。而月儿偶尔也从它们的交叉处偷偷窥看我们，大有小姑娘怕羞的样子。岸上另有几株不知名的老树，光光的立着；在月光里照起来，却又俨然是精神矍铄11的老人。远处——快到天际线了，才有一两片白云，亮得现出异彩，像是美丽的贝壳一般。白云下便是黑黑的一带轮廓；是一条随意画的不规则的曲线。这一段光景，和河中的风味大异了。但灯与月竟能并存着，交融着，使月成了缠绵的月，灯射着渺渺的灵辉，这正是天之所以厚秦淮河，也正是天之所以厚我们了。<br><br>这时却遇着了难解的纠纷。秦淮河上原有一种歌妓，是以歌为业的。从前都在茶舫上，唱些大曲之类。每日午后一时起；什么时候止，却忘记了。晚上照样也有一回，也在黄晕的灯光里。我从前过南京时，曾随着朋友去听过两次。因为茶舫里的人脸太多了，觉得不大适意，终于听不出所以然。前年听说歌妓被取缔了，不知怎的，颇涉想了几次——却想不出什么。这次到南京，先到茶舫上去看看。觉得颇是寂寥，令我无端的怅怅了。不料她们却仍在秦淮河里挣扎着，不料她们竟会纠缠到我们，我于是很张皇了，她们也乘着“七板子”，她们总是坐在舱前的。舱前点着石油汽灯光亮，眩人眼目：坐在下面的，自然是纤毫毕见了——引诱客人们的力量，也便在此了。舱里躲着乐工等人，映着汽灯的余辉蠕动着；他们是永远不被注意的。每船的歌妓大约都是二人；天色一黑，她们的船就在大中桥外往来不息的兜生意。无论行着的船，泊着的船，都要来兜揽的。这都是我后来推想出来的。那晚不知怎样，忽然轮着我们的船了。我们的船好好的停着，一只歌舫划向我们来了；渐渐和我们的船并着了。烁烁的灯光逼得我们皱起了眉头；我们的风尘色全给它托出来了，这使我不安了，那时一个伙计跨过船来，拿着摊开的歌折，就近塞向我的手里，说：“点几出吧！”他跨过来的时候，我们船上似乎有许多眼光跟着。同时相近的别的船上也似乎有许多眼睛炯炯的向我们船上看着。我真窘了！我也装出大方的样子，向歌妓们瞥了一眼，但究竟是不成的！我勉强将那歌折翻了一翻，却不曾看清了几字；便赶紧递还那伙计，一面不好意思地说：“不要，我们……不要。”他便塞给平伯，平伯掉转头去，摇手说：“不要！”那人还腻着不走。平伯又回过脸来，摇着头道：“不要！”于是那人重到我处，我窘着再拒绝了他。他这才有所不屑似的走了。我的心立刻放下，如释了重负一般。我们就开始自白了。<br><br>我说我受了道德律的压迫，拒绝了她们；心里似乎很抱歉的。这所谓抱歉，一面对于她们，一面对于我自己。她们于我们虽然没有很奢的希望；但总有些希望的。我们拒绝了她们，无论理由如何充足，却使她们的希望受了伤；这总有几分不做美了。这是我觉得很怅怅的。至于我自己，更有一种不足之感。我这时被四面的歌声诱惑了，降伏了；但是远远的，远远的歌声总仿佛隔着重衣搔痒似的，越搔越搔不着痒处。我于是憧憬着贴耳的妙音了。在歌舫划来时，我的憧憬，变为盼望；我固执的盼望着，有如饥渴。虽然从浅薄的经验里，也能够推知，那贴耳的歌声，将剥去了一切的美妙；但一个平常的人像我的，谁愿凭了理性之力去丑化未来呢？我宁愿自己骗着了。不过我的社会感性是很敏锐的；我的思力能拆穿道德律的西洋镜，而我的感情却终于被它压服着。我于是有所顾忌了，尤其是在众目昭彰的时候。道德律的力，本来是民众赋予的；在民众的面前，自然更显出它的威严了。我这时一面盼望，一面却感到了两重的禁制：一，在通俗的意义上，接近妓者总算一种不正当的行为；二，妓是一种不健全的职业，我们对于她们，应有哀矜勿喜之心，不应赏玩的去听她们的歌。在众目睽睽之下，这两种思想在我心里最为旺盛。她们暂时压倒了我的听歌的盼望，这便成就了我的灰色的拒绝。那时的心实在异常状态中，觉得颇是昏乱。歌舫去了，暂时宁静之后，我的思绪又如潮涌了。两个相反的意思在我心头往复：卖歌和卖淫不同，听歌和狎妓不同，又干道德甚事？——但是，但是，她们既被逼的以歌为业，她们的歌必无艺术味的；况她们的身世，我们究竟该同情的。所以拒绝倒也是正办。但这此意思终于不曾撇开我的听歌的盼望。它力量异常坚强；它总想将别的思绪踏在脚下。从这重重的争斗里，我感到了浓厚的不足之感。这不足之感使我的心盘旋不安，起坐都不安宁了。唉！我承认我是一个自私的人！<br><br>平伯呢，却与我不同。他引周启明先生的诗，“因为我有妻子，所以我爱一切的女人；因为我有子女，所以我爱一切的孩子。”他的意思可以见了。他因为推及的同情，爱着那些歌妓，并且尊重着她们，所以拒绝了她们。在这种情形下，他自然以为听是对于她们的一种侮辱。但他也是想听歌的，虽然不和我一样。所以在他的心中，当然也有一番小小的争斗；争斗的结果，是同情胜了。至于道德律，在他是没有什么的；因为他很有蔑视一切的倾向，民众的力量在他是不大觉着的。这时他的心意的活动比较简单，又比较松弱，故事后还怡然自若；我却不能了。这里平伯又比我高了。<br><br>在我们谈话中间，又来了两只歌舫。伙计照前一样的请我们点戏，我们照前一样的拒绝了。我受了三次窘，心里的不安更甚了。清艳的夜景也为之减色。船夫大约因为要赶第二趟生意，催着我们回去；我们无可无不可的答应了。我们渐渐和那些晕黄的灯光远了，只有些月色冷清清的随着我们的归舟。我们的船竟没个伴儿，秦淮河的夜正长哩！到大中桥近处，才遇着一只来船。这是一只载妓的板船，黑漆漆的没有一点光。船头上坐着一个妓女；暗里看出，白地小花的衫子，黑的下衣。她手里拉着胡琴，口里唱着青衫的调子。她唱得响亮而圆转；当她的船箭一般驶过去时，余音还袅袅的在我们耳际，使我们倾听而向往。想不到在弩末的游踪里，还能领略到这样的清歌！这时船过大中桥了，森森的水影，如黑暗张着巨口，要将我们的船吞了下去。我们回顾那渺渺的黄光，不胜依恋之情；我们感到了寂寞了！这一段地方夜色甚浓，又有两头的灯火招邀着；桥外的灯火不用说了，过了桥另有东关头疏疏的灯火。我们忽然仰头看见依人的素月，不觉深悔归来之早了！走过东关头，有一两只大船湾泊着，又有几只船向我们来着。嚣嚣的一阵歌声人语，仿佛笑我们无伴的孤舟哩。东关头转湾，河上的夜色更浓了；临水的妓楼上，时时从帘缝里射出一线一线的灯光；仿佛黑暗从酣睡里眨了一眨眼。我们默然的对着，静听那汩——汩的桨声，几乎要入睡了；朦胧里却温寻着适才的繁华的余味。我那不安的心在静里愈显活跃了！这时我们都有了不足之感，而我的更其浓厚。我们却又不愿回去，于是只能由懊悔而怅惘了。船里便满载着怅惘了。直到利涉桥下，微微嘈杂的人声，才使我豁然一惊；那光景却又不同。右岸的河房里，都大开了窗户，里面亮着晃晃的电灯，电灯的光射到水上，蜿蜒曲折，闪闪不息，正如跳舞着的仙女的臂膊。我们的船已在她的臂膊里了；如睡在摇篮里一样，倦了的我们便又入梦了。那电灯下的人物，只觉得像蚂蚁一般，更不去萦念。这是最后的梦，可惜是最短的梦！黑暗重复落在我们面前，我们看见傍岸的空船上一星两星的，枯燥无力又摇摇不定的灯光。我们的梦醒了，我们知道就要上岸了；我们心里充满了幻灭的情思。<br><br>1923年10月11日作完，于温州。<br></p>
 
       
 
@@ -241,7 +189,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">C语言开源项目</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
         		</li>
       		
 		</ul>
@@ -297,7 +245,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://www.junshuoli.cn/2021/01/27/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://www.junshuoli.cn/2020/05/31/%E6%A1%A8%E5%A3%B0%E7%81%AF%E5%BD%B1%E9%87%8C%E7%9A%84%E7%A7%A6%E6%B7%AE%E6%B2%B3/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -311,18 +259,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2021/01/27/%E3%80%8A%E7%AE%97%E6%B3%95%E7%AC%AC%E5%9B%9B%E7%89%88%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0%20%20%E7%AC%AC%E4%B8%80%E5%A4%A9/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2020/05/31/%E5%AF%B9%E7%BE%8A%E5%93%A5%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%95%99%E7%A8%8B%E7%9A%84%E8%A1%A5%E5%85%85/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          《算法第四版》阅读笔记  第一天
+          对羊哥博客搭建教程的补充
         
       </div>
     </a>
   
   
-    <a href="/2020/06/07/%E8%AF%A6%E8%A7%A3%E7%AE%97%E6%B3%95%20%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E5%AD%90%E5%BA%8F%E5%88%97%E7%B3%BB%E5%88%97%E9%97%AE%E9%A2%98/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">详解算法 最长连续子序列系列问题</div>
+    <a href="/2020/05/31/%E8%AE%BA%E8%8D%AF%E6%B0%B4%E5%93%A5%E7%9A%84%E7%9B%B4%E6%92%AD%E8%89%BA%E6%9C%AF/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">论药水哥的直播艺术</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -353,8 +301,8 @@
   <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
 <script>
   var cloudTieConfig = {
-    url: "http://www.junshuoli.cn/2021/01/27/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/", 
-    sourceId: "开源项目Tinyhttpd详解第一篇 详解sockaddr_in，socklen",
+    url: "http://www.junshuoli.cn/2020/05/31/%E6%A1%A8%E5%A3%B0%E7%81%AF%E5%BD%B1%E9%87%8C%E7%9A%84%E7%A7%A6%E6%B7%AE%E6%B2%B3/", 
+    sourceId: "桨声灯影里的秦淮河",
     productKey: "true",
     target: "cloud-tie-wrapper"
   };
@@ -459,10 +407,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Java算法</a>
               </li>
              
@@ -472,6 +416,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">C语言开源项目</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
               </li>
              
               <li class="article-tag-list-item">
