@@ -152,6 +152,209 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-开源项目Tinyhttpd详解第一篇 详解sockaddr_in，socklen" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/01/27/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/">开源项目Tinyhttpd详解第一篇 详解main函数</a>
+    </h1>
+  
+
+        
+        <a href="/2021/01/27/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/" class="archive-article-date">
+  	<time datetime="2021-01-27T13:55:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-01-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <br>
+[Tinyhttpd](https://github.com/ezlippi/tinyhttpd) 
+
+<p>&emsp;&emsp;这个项目是我最近在论坛发现的写的很优秀的一个学习C和Linux方面知识的一个开源代码，大概只有五百多行，但是麻雀虽小,五脏俱全嘛～通过这个程序可以了解服务器程序的本质，何乐不为呢！！！！！<br>&emsp;&emsp;首先要说明socket是个什么东西呀（主要是担心有些兄弟看不懂。。比如我哈哈哈哈）<br>&emsp;&emsp;socket，在中国翻译过来叫做套接字，主要是用来进行应用程序间通信的一个数据结构，当初是Unix传承下来的一种重要的信息传递方式，在服务方和客户方进行通信的之前，双方必须知道ip地址和端口号，服务方收到客户方发来的连接请求，故首先向系统申请一个socket，然后服务方以一种emmmmmm类似死循环的方式等待客户方的连接，当客户方在发出连接请求并且服务方收到以后，服务方会选择接受连接或者拒绝连接，如果接受连接，服务方就会自动申请一个新的socket与客户端进行连接，而服务方原来的socket继续在那里死循环（这个意思并不准确呀～心里大概懂那个意思就好啦！！）。<br>&emsp;&emsp;用我当年追小学姐的事情来举例，我（客户方）知道小学姐的地址和宿舍号，我（客户方）就去西华香馨园宿管大妈那里（申请一个连接请求）进行emmmmmmm亲切友好的交流。。。。，然后宿管大妈（服务方）找到小学姐（申请一个新的socket），我和小学姐一起去恰饭～～～（连接成功）。<br>&emsp;&emsp;废话不多说，看C程序就要先看main函数啦，具体代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> server_sock = <span class="number">-1</span>;</span><br><span class="line">    u_short port = <span class="number">4000</span>;</span><br><span class="line">    <span class="keyword">int</span> client_sock = <span class="number">-1</span>;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">client_name</span>;</span></span><br><span class="line">    <span class="keyword">socklen_t</span>  client_name_len = <span class="keyword">sizeof</span>(client_name);</span><br><span class="line">    <span class="keyword">pthread_t</span> newthread;</span><br><span class="line"></span><br><span class="line">    server_sock = startup(&amp;port);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"httpd running on port %d\n"</span>, port);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        client_sock = accept(server_sock,</span><br><span class="line">                (struct sockaddr *)&amp;client_name,</span><br><span class="line">                &amp;client_name_len);</span><br><span class="line">        <span class="keyword">if</span> (client_sock == <span class="number">-1</span>)</span><br><span class="line">            error_die(<span class="string">"accept"</span>);</span><br><span class="line">        <span class="comment">/* accept_request(&amp;client_sock); */</span></span><br><span class="line">        <span class="keyword">if</span> (pthread_create(&amp;newthread , <span class="literal">NULL</span>, (<span class="keyword">void</span> *)accept_request, (<span class="keyword">void</span> *)(<span class="keyword">intptr_t</span>)client_sock) != <span class="number">0</span>)</span><br><span class="line">            perror(<span class="string">"pthread_create"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">close</span>(server_sock);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这里面有很多个函数和字段很不常见，具体如下:</p>
+<ol>
+<li>sockaddr_in<br>&emsp;&emsp;这个结构体是用来用来处理网路通信的地址，它主要是在头文件&lt;netinet/in.h&gt;或&lt;arpa/inet.h&gt;定义的，这个结构体的内部数据结构主要如下: <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    sa_family sin_family;</span><br><span class="line">    <span class="keyword">uint16_t</span> sin_port;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">in_addr</span> <span class="title">sin_addr</span>;</span></span><br><span class="line">    <span class="keyword">char</span> sin_zero[<span class="number">8</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">in_addr</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    In_addr_t s_addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li>in_family: 地址家族，可以理解为一系列相似的通信协议的族群，占用2字节，一般它的值主要为AF_INET，AF_INET6和AF_UNSPE。其中AF_INET不能返回任何任何IPV6相关的地址信息，AF_INET6不能返回任何IPV4地址信息，AF_UNSPEC则意味着函数返回的是适用于指定主机名和服务名且适合任何协议族的地址。</li>
+<li>sin_port: 端口号</li>
+<li>sin_addr：IPv4／IPv6地址</li>
+<li>sin_zero[8]:这个奇怪的东西。。。。。我们其实是不用管的，但是说到这个东西必须提到下面这个sockaddr结构，下面这个结构是程序员无法编辑的，即在操作系统中使用的一种socket数据结构，sa_family和上面的定义是一样的，而sa_data则包括上面的端口号和ip地址。sockaddr_in的用处本来是便于程序员进行端口和ip地址的编辑，在系统中会被强行转换成sockaddr，他们两个都是占有16个字节，所以。。。sin_zero[8]就是为了让他们两个保持大小相同而保留的空字节。 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sockaddr</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> short sa_family;</span><br><span class="line">    <span class="keyword">char</span> sa_data[<span class="number">14</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ol start="2">
+<li>socklen_t<br>&emsp;&emsp;这个数据结构在网络上资料很乱，总的来说是哈指的是现在socket数据结构的长度，在当初的时候它并不叫这个名字，而是叫做size_t，而size_t类型在64位的系统上并不能和BSD套接字接口所要求的保持一致，故他们改了个名字叫做socklen_t，然而不管怎么变，他们都是int数据类型的马甲罢了。。。。。。。 </li>
+<li>pthread_t<br>&emsp;&emsp;用来声明Linux中的线程ID，数据结构为：unsigned long int；</li>
+<li>sizeof操作符<br>&emsp;&emsp;sizeof在我的印象里都是一个用来返回某个数据类型所占的内存，然而前段时间被人家问到了基本用法，都忘了。。。。所以写出来整理一下。</li>
+</ol>
+<ul>
+<li><p>普通用法</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span>(type)/<span class="keyword">sizeof</span> var_name&lt;br&gt;</span><br></pre></td></tr></table></figure>
+<p>  &emsp;&emsp;sizeof是以字节形式给出了所操作数据的大小。前一种的格式都喜闻乐见，而后一种对我来说很少见，当用这种格式时主要是用来操作变量和对象，但是如果是操作一个类型必须要添加括号。但是由这里也可以看出来sizeof并不是函数！！！！因为一个正常的函数是需要加括号的。 而且sizeof也不是一种操作符！！！！，为什么这么说呢，可以看下面的例子：</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a=<span class="number">0</span>;</span><br><span class="line"><span class="built_in">cout</span>&lt;&lt;<span class="keyword">sizeof</span>(a=<span class="number">4</span>)&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line"><span class="built_in">cout</span>&lt;&lt;a&lt;&lt;<span class="built_in">endl</span>;</span><br></pre></td></tr></table></figure>
+<p>  &emsp;&emsp;这段程序的输出结果为：</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">4</span></span><br><span class="line"><span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>  &emsp;&emsp;在当初在其他大佬的博客上看到这段程序时，我发现这个东西真的好迷，因为我认为答案是4和3，后来把sizeof看作是一种编译预处理就想的过去了，因为显然在sizeof处理阶段显然括号内并没有编译，而是被替换成类型int。<br>  sizeof不能用来操作未知存储大小的数据类型，未知内容的结构和联合类型,void类型。例如：</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span>(<span class="built_in">max</span>);<span class="comment">//int max()</span></span><br><span class="line"><span class="keyword">sizeof</span>(char_v);<span class="comment">//char char_v[MAX]，MAX未赋值</span></span><br><span class="line"><span class="keyword">sizeof</span>(<span class="keyword">void</span>);</span><br></pre></td></tr></table></figure>
+<p>  &emsp;&emsp;以上用法全都是错误的！！！<br>  &emsp;&emsp;以上用法全都是错误的！！！<br>  &emsp;&emsp;以上用法全都是错误的！！！</p>
+</li>
+<li><p>sizeof的基本用法<br>  &emsp;&emsp;上面的这些7788的东西，说出来没有什么依据，下面通过一些常用的用法来认识sizeof的用法：</p>
+  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span>(<span class="keyword">char</span>);/<span class="keyword">sizeof</span>(<span class="keyword">signed</span> <span class="keyword">char</span>)/<span class="keyword">sizeof</span>(<span class="keyword">unsigned</span> <span class="keyword">char</span>)</span><br><span class="line"><span class="keyword">sizeof</span>(p);<span class="comment">//int *p或者string *p或者char*********</span></span><br><span class="line"><span class="keyword">sizeof</span>(a);<span class="comment">//int a[10]</span></span><br><span class="line"><span class="keyword">sizeof</span>(b);<span class="comment">//char b[]="hello";</span></span><br></pre></td></tr></table></figure>
+<p>  &emsp;&emsp;1和2的结果都是1,不管是什么类型，sizeof后的结果都是取决于操作系统的，在32位操作系统上面就是4，在64位上就是8,sizeof(a)在这里等价于数组长度乘以sizeof(int),换句话说：sizeof(a)=10*sizeof(int)。sizeof(b)等于6，原因是因为字符串后面一般都会有个”\0”，这个。。。预编译符会算进去的！！！！！</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> b[<span class="number">20</span>]=&#123;<span class="number">3</span>,<span class="number">4</span>&#125;;</span><br><span class="line"><span class="keyword">char</span> c[<span class="number">2</span>][<span class="number">3</span>]=&#123;<span class="string">"aa"</span>,<span class="string">"bb"</span>&#125;;</span><br><span class="line"><span class="keyword">sizeof</span>(b);\\<span class="number">20</span>*<span class="number">4</span></span><br><span class="line"><span class="keyword">sizeof</span>(c);\\<span class="number">6</span></span><br></pre></td></tr></table></figure>
+<p>  &emsp;&emsp;以上的例子可以看的出来sizeof的值并不取决于赋值的情况，数组的大小取决于它在编译时被分配的空间，也就是各维度乘以数组元素的大小。</p>
+</li>
+<li><p>函数的sizeof使用方法<br>&emsp;&emsp;sizeof并不能测量整个函数占用的内存大小！！！！而是测量数组返回值类型的大小。但是要在这期间注意不能对返回值类型为空或者仅仅对一个函数名求值，在函数有参数时，必须加上参数表！！！</p>
+</li>
+<li><p>进阶用法 诡异的函数对齐问题<br>&emsp;&emsp;众所周知，C语言中存在这两种类型：struct和union，而在C++中区别于c语言存在更复杂的class类型，而对这三种数据类型操作时，代码如下：</p>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">sample</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">double</span> a;</span><br><span class="line">    <span class="keyword">char</span> b;</span><br><span class="line">    <span class="keyword">int</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> &emsp;&emsp;对于刚开始入门的兄弟来说，sizeof(sample)=sizeof(double)+sizeof(char)+sizeof(int)。。。然而并不是这样子的，编译器对一些变量的起始地址做了“对齐”处理。在默认情况下，编译器规定各成员变量存放的起始地址相对于结构的起始地址的偏移量必须为该变量的类型所占用的字节数的倍数。在32位系统中，具体偏移方法如下：<br></p>
+ <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span>  <span class="comment">//偏移量必须为sizeof(char)即1的倍数  </span></span><br><span class="line"><span class="keyword">int</span>  <span class="comment">//偏移量必须为sizeof(int)即4的倍数  </span></span><br><span class="line"><span class="keyword">float</span>  <span class="comment">//偏移量必须为sizeof(float)即4的倍数  </span></span><br><span class="line"><span class="keyword">double</span>  <span class="comment">//偏移量必须为sizeof(double)即8的倍数  </span></span><br><span class="line">short  <span class="comment">//偏移量必须为sizeof(short)即2的倍数</span></span><br></pre></td></tr></table></figure>
+<p> &emsp;&emsp;结构体中的变量在申请空间时，是按照顺序来申请空间，并且按照上面所示的对齐方式来调整位置，并且按照上述要求填充空字节。这样子说跟没说一样，所以说个例子吧：<br> &emsp;&emsp;当为上面的sample结构体分配空间时，肯定是先为double类型变量分配内存，他的起始地址和结构体的起始地址相同，偏移量0（正好为sizeof（double）的倍数），它占的内存为8字节这个就不用说了；然后为第二个char类型变量分配内存，可以为它分配的地址相对于结构的偏移地址为8，满足对齐方式可以分配，它占的内存为1个字节，完美！！！！；然后为第三个int类型变量分配内存，下一个可以分配的地址对于结构的偏移量为9，不是sizeof（int）的倍数，为了满足上述对偏移量balabala的诡异约束问题，编译器会填充三个空字节。。。使得下一个可分配地址对于结构原始地址偏移为12，满足要求，分配内存，完美！！！！！所以占用的空间大小为：8+1+3+4=16字节。（这个东西我记得在19年12月份我考浙江大学的计算机系时。。。408考试里考过，当时真的搞不懂，现在终于搞懂了，开心！！！！！！）</p>
+</li>
+</ul>
+<ol start="5">
+<li>startup函数<br>&emsp;&emsp;废话不多说，直接上代码：<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">startup</span><span class="params">(u_short *port)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="keyword">int</span> httpd = <span class="number">0</span>;</span><br><span class="line"> <span class="keyword">int</span> on = <span class="number">1</span>;</span><br><span class="line"> <span class="class"><span class="keyword">struct</span> <span class="title">sockaddr_in</span> <span class="title">name</span>;</span></span><br><span class="line"></span><br><span class="line"> httpd = socket(PF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line"> <span class="keyword">if</span> (httpd == <span class="number">-1</span>)</span><br><span class="line">     error_die(<span class="string">"socket"</span>);</span><br><span class="line"> <span class="built_in">memset</span>(&amp;name, <span class="number">0</span>, <span class="keyword">sizeof</span>(name));</span><br><span class="line"> name.sin_family = AF_INET;</span><br><span class="line"> name.sin_port = htons(*port);</span><br><span class="line"> name.sin_addr.s_addr = htonl(INADDR_ANY);</span><br><span class="line"> <span class="keyword">if</span> ((setsockopt(httpd, SOL_SOCKET, SO_REUSEADDR, &amp;on, <span class="keyword">sizeof</span>(on))) &lt; <span class="number">0</span>)  </span><br><span class="line"> &#123;  </span><br><span class="line">     error_die(<span class="string">"setsockopt failed"</span>);</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">if</span> (bind(httpd, (struct sockaddr *)&amp;name, <span class="keyword">sizeof</span>(name)) &lt; <span class="number">0</span>)</span><br><span class="line">     error_die(<span class="string">"bind"</span>);</span><br><span class="line"> <span class="keyword">if</span> (*port == <span class="number">0</span>)  <span class="comment">/* if dynamically allocating a port */</span></span><br><span class="line"> &#123;</span><br><span class="line">     <span class="keyword">socklen_t</span> namelen = <span class="keyword">sizeof</span>(name);</span><br><span class="line">     <span class="keyword">if</span> (getsockname(httpd, (struct sockaddr *)&amp;name, &amp;namelen) == <span class="number">-1</span>)</span><br><span class="line">         error_die(<span class="string">"getsockname"</span>);</span><br><span class="line">     *port = ntohs(name.sin_port);</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">if</span> (<span class="built_in">listen</span>(httpd, <span class="number">5</span>) &lt; <span class="number">0</span>)</span><br><span class="line">     error_die(<span class="string">"listen"</span>);</span><br><span class="line"> <span class="keyword">return</span>(httpd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+&emsp;&emsp;这个函数的注释。。。。其实我也看不懂，建议谷歌翻译一下。大概意思是说哈，开启一个线程在参数中的端口不为0的情况下监听一个端口，如果端口为0的话，那么就随机分配一个接口来使用。<br>&emsp;&emsp;接下来就是socket函数，这个函数是在sys/types.h头文件中定义的一个函数，这个函数的参数如下：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">socket</span><span class="params">(<span class="keyword">int</span> domain, <span class="keyword">int</span> type, <span class="keyword">int</span> protocol)</span></span>;</span><br></pre></td></tr></table></figure>
+&emsp;&emsp;这个函数的作用是用来建立一个协议族为domain，协议类型为type，协议编号为protocol的套接字描述符，如果函数调用成功的话，会返回标示这个套接字的文件描述符，如果失败就会返回-1。<br>&emsp;&emsp; domain这个参数是用来设置网路通信的域，socket函数根据这个参数来选择通信协议的族，通信协议在头文件sys/socket.h中定义。<br>&emsp;&emsp;type用于设置套接字通信的类型，主要有SOCKET_STREAM(流式套接字)，SOCK_DGRAM(数据包套接字)等。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SOCK_STREAM<span class="comment">//tcp连接，提供序列化的可靠的双向连接的字节流</span></span><br><span class="line">SOCK_DGRAM<span class="comment">//支持udp连接</span></span><br><span class="line">SOCK_SEQPACKET<span class="comment">//序列化包，提供一个序列化的，可靠的，双向的基本连接的数据连接通道，数据长度定常。</span></span><br><span class="line">SOCK_RAW<span class="comment">//提供原始网络协议访问</span></span><br><span class="line">SOCK-RDM<span class="comment">//提供可靠的数据报文，不过可能数据会有乱序</span></span><br><span class="line">SOCK_PACKET<span class="comment">//这是一个专有类型，不过能够在通用程序中使用</span></span><br></pre></td></tr></table></figure></li>
+<li></li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">C语言开源项目</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/01/27/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-《算法第四版》阅读笔记  第一天" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/01/27/%E3%80%8A%E7%AE%97%E6%B3%95%E7%AC%AC%E5%9B%9B%E7%89%88%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0%20%20%E7%AC%AC%E4%B8%80%E5%A4%A9/">《算法第四版》阅读笔记  第一天</a>
+    </h1>
+  
+
+        
+        <a href="/2021/01/27/%E3%80%8A%E7%AE%97%E6%B3%95%E7%AC%AC%E5%9B%9B%E7%89%88%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0%20%20%E7%AC%AC%E4%B8%80%E5%A4%A9/" class="archive-article-date">
+  	<time datetime="2021-01-27T13:55:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-01-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <br>
+这本书是柳神推荐的一本算法，其实我已经买了好久了，最近准备复习和学习一下算法，毕竟程序等于数据结构和算法嘛，这本书主要是通过Java语言来描述算法的具体实现的，我感觉总的来说比严蔚敏的《数据结构和算法》来说要温柔一点，可能是我学了很多与Java相关的东西吧，因为总的来说我对指针这个东西还是比较害怕，感觉自己很难理解指针套指针那种操作，好的，接下来接着出
+1. 下压栈 
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResizingArrayStack</span>&lt;<span class="title">Item</span>&gt;<span class="keyword">implements</span> <span class="title">Iterable</span>&lt;<span class="title">Item</span>&gt;</span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">  <span class="keyword">private</span> Item[] a=(Item[])<span class="keyword">new</span> Object[<span class="number">1</span>];<span class="comment">//栈元素</span></span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Java算法</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/01/27/%E3%80%8A%E7%AE%97%E6%B3%95%E7%AC%AC%E5%9B%9B%E7%89%88%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0%20%20%E7%AC%AC%E4%B8%80%E5%A4%A9/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-详解算法 最长连续子序列系列问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -355,360 +558,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2020/05/31/#%20%E6%A1%A8%E5%A3%B0%E7%81%AF%E5%BD%B1%E9%87%8C%E7%9A%84%E7%A7%A6%E6%B7%AE%E6%B2%B3/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-开源项目Tinyhttpd第三篇 由上一篇sizeof引出的对指针和数组的思考" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E4%B8%89%E7%AF%87%20%E7%94%B1%E4%B8%8A%E4%B8%80%E7%AF%87sizeof%E5%BC%95%E5%87%BA%E7%9A%84%E5%AF%B9%E6%8C%87%E9%92%88%E5%92%8C%E6%95%B0%E7%BB%84%E7%9A%84%E6%80%9D%E8%80%83/">开源项目Tinyhttpd第三篇 由上一篇sizeof引出的对指针和数组的思考</a>
-    </h1>
-  
-
-        
-        <a href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E4%B8%89%E7%AF%87%20%E7%94%B1%E4%B8%8A%E4%B8%80%E7%AF%87sizeof%E5%BC%95%E5%87%BA%E7%9A%84%E5%AF%B9%E6%8C%87%E9%92%88%E5%92%8C%E6%95%B0%E7%BB%84%E7%9A%84%E6%80%9D%E8%80%83/" class="archive-article-date">
-  	<time datetime="2020-05-31T10:06:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-31</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>指针和数组，恕我直言，我从17年第一次接触C++语言开始，我就认识这俩玩意儿了。。。。但是我提到指针，就跟见了鬼一样，我记得逼乎上谁说的。。C语言最有特色的部分就是指针了，指针的好处就是灵活。。然而坏处就是太TM灵活了！！用这个东西容易搞出很多莫名其妙的bug和令人非常难懂的语句段来，所以很多高级语言比如C#和Java和前端三大语言虽然都源自于C语言，但是不约而同的没有继承指针这一特性。好的废话不多说，让我们来解析这俩玩意儿吧～～～～<p></p>
-<ol>
-<li>指针 <br><br>指针是用来表示或者存储一个存储器地址，这个地址的值直接指向存在该地址的对象的值。指针所占内存单元的大小（即其内容）是跟操作系统的地址位数有关，在32位系统中，指针所占的内存单元就是4个字节，在64位系统中，指针所占的内存单元就是8个字节，在16位系统中，指针所占的内存单元就是2个字节。但是指针所占的内存单元的大小与变量类型无关。</li>
-</ol>
-<ul>
-<li>首先事先说明”*”由三个用途，具体如下：<br>1） 表示乘法（喜闻乐见）；<br><br>2） 表示定义一个指针变量，用这个符号和普通变量分开；<br><br>3） 表示获取指针指向的数据，是一种间接的操作。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">int a&#x3D;10;</span><br><span class="line">int *p&#x3D;&amp;a;</span><br><span class="line">++*p;&#x2F;&#x2F;将p所指向的内容加上1后赋值给y，这个语段等价于++(*p)</span><br><span class="line">*p++;&#x2F;&#x2F;和楼上的方法是一样的，等价于(*p)++,也就是说++和*的优先级一样的</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;</span><br><span class="line">&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;</span><br><span class="line">int a&#x3D;0;</span><br><span class="line">int *pa&#x3D;a;</span><br><span class="line">*&amp;a;&#x2F;&#x2F;等价于*(&amp;a)表示先取a的地址，然后再取这个地址上的数据，说白了还是a。。。。</span><br><span class="line">&amp;*pa;&#x2F;&#x2F;等价于&amp;(*pa)表示先取pa指向的数据，也就是a的值嘛，然后再取该数据的地址，说白了还是pa。。。。重要的是分析的过程不是结果哈。。。</span><br></pre></td></tr></table></figure></li>
-<li>关于指针的解析问题(基于32位操作系统)<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int num&#x3D;97;</span><br><span class="line">int *p1&#x3D;&amp;num;</span><br></pre></td></tr></table></figure>
-假设num的地址为0028FF40，换句话说，p1和p2的值就是0028FF40，都不重要哈，但是指针的类型决定了这个指针指向的内存的字节数并且如何解释这些信息，听起来有点绕口，让我们用这个例子来说吧：<br><br>num的地址如上述所述是0028FF40,所以p1和p2的解析思路如下：<br></li>
-<li>p1:从地址0028FF40开始,p1是int类型的指针，int在上一节说过占四个字节，因此从前往后数上四个字节，将这四个字节的二进制数解析，结果是97；</li>
-<li>p2:从地址0028FF40开始，p2是char类型的指针，char占一个字节，然后解析这一个字节的二进制数。。结果是a；<br><br>从上述可以知道，同样的地址，如果解析的方式不同，得到的数据可是天壤之别，因为就有了一个奇葩的指针：void类型的指针<br><br>void指针只是保存了指针的值，没有类型信息，也就是说，你只知道它的地址，但是你并不知道它的解析方式，换句话说你不知道它指向的数据是什么类型的，所以在使用该指针时严禁解引用！！！！！！！，如果非要用它的话必须要将这种指针进行类型转换才能使用！！！！！<br></li>
-</ul>
-<ol>
-<li>指针和数组（以下叙述基于32位系统）<br><br>数组的定义喜闻乐见，就是一个连续占有一段内存单元的变量集合，它的数组名可以看作是一个指针，代表数组的首地址。例子如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">int a[10];</span><br><span class="line">int *p&#x3D;a;&#x2F;&#x2F;和int *p&#x3D;&amp;a[0]等价,p&#x3D;p[0]&#x3D;a[0]&#x3D;*a,p+i&#x3D;p[i]&#x3D;a[i]&#x3D;*(a+i)</span><br><span class="line">p[n]&#x3D;&#x3D;*(p+n);</span><br><span class="line">p[n][m]&#x3D;*(*(p+n)+m);</span><br><span class="line">&#x2F;&#x2F;sizeof(p)在32位系统中为四个字节。</span><br><span class="line">&#x2F;&#x2F;sizeof(a)的值为40个字节。在这里数组名a被看作整个数组的代表。</span><br><span class="line">&#x2F;&#x2F;在上面的p+1并不是指向下一个地址，而是指向下一个元素，在这里要注意哟，这里是有区别的，比如p指向的是int类型的数组首个元素，而p+1大家都知道是指向的是第二个元素，”下一个地址“就是p往后挪了一个字节，“下一个元素”就是p往后挪了四个字节（如果数组是int类型的）或者往后挪了一个字节（如果数组是char类型的）。综上所述，*p是第一个元素的内容，*(p+1)是第二个元素的内容，p+1是第二个元素的地址。</span><br></pre></td></tr></table></figure></li>
-<li>令人恶心的数组指针和指针数组<br>这个东西还是很难记住的。。。。还是多看多记吧。。。贼难受呀～～～～<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nt *p[10];&#x2F;&#x2F;指针数组，数组里有十个元素，每个元素都是int型的指针</span><br><span class="line">&#x2F;&#x2F;[]的优先级比*要搞，p先与[]结合，是一个数组，然后int*修饰数组的内容，所以这是10个指向int类型的指针。</span><br><span class="line">int (*p)[10];&#x2F;&#x2F;数组指针，()的优先级比[]高，*和p构成一个指针的定义，int修饰的是数组的内容，即是每个元素，数组在这里没有名字，是一个匿名数组，所以p是一个指针，指向了一个匿名的包含int类型的数组。可以理解为int(*)[10]p</span><br></pre></td></tr></table></figure></li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">C语言开源项目</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E4%B8%89%E7%AF%87%20%E7%94%B1%E4%B8%8A%E4%B8%80%E7%AF%87sizeof%E5%BC%95%E5%87%BA%E7%9A%84%E5%AF%B9%E6%8C%87%E9%92%88%E5%92%8C%E6%95%B0%E7%BB%84%E7%9A%84%E6%80%9D%E8%80%83/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-开源项目Tinyhttpd第二篇 详解sizeof关键字" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E4%BA%8C%E7%AF%87%20%E8%AF%A6%E8%A7%A3sizeof%E5%85%B3%E9%94%AE%E5%AD%97/">开源项目Tinyhttpd第二篇 详解sizeof关键字</a>
-    </h1>
-  
-
-        
-        <a href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E4%BA%8C%E7%AF%87%20%E8%AF%A6%E8%A7%A3sizeof%E5%85%B3%E9%94%AE%E5%AD%97/" class="archive-article-date">
-  	<time datetime="2020-05-31T10:06:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-31</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://github.com/ezlippi/tinyhttpd" target="_blank" rel="noopener">Tinyhttpd</a><br>接上一篇文章，接下来我们要注意的关键字是sizeof。sizeof在我的印象里都是一个用来返回某个数据类型所占的内存，然而前段时间被人家问到了基本用法，都忘了。。。。所以写出来整理一下。<br><br>1.普通用法</p>
-<ul>
-<li>sizeof(type)/sizeof var_name<br><br>sizeof是以字节形式给出了所操作数据的大小。前一种的格式都喜闻乐见，而后一种对我来说很少见，当用这种格式时主要是用来操作变量和对象，但是如果是操作一个类型必须要添加括号。但是由这里也可以看出来sizeof并不是函数！！！！因为一个正常的函数是需要加括号的。 而且sizeof也不是一种操作符！！！！，为什么这么说呢，可以看下面的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int a&#x3D;0;</span><br><span class="line">cout&lt;&lt;sizeof(a&#x3D;4)&lt;&lt;endl;</span><br><span class="line">cout&lt;&lt;a&lt;&lt;endl;</span><br></pre></td></tr></table></figure>
-这段程序的输出结果为：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">4</span><br><span class="line">0</span><br></pre></td></tr></table></figure>
-在当初在其他大佬的博客上看到这段程序时，我发现这个东西真的好迷，因为我认为答案是4和3，后来把sizeof看作是一种编译预处理就想的过去了，因为显然在sizeof处理阶段显然括号内并没有编译，而是被替换成类型int。<br></li>
-<li>sizeof不能用来操作未知存储大小的数据类型，未知内容的结构和联合类型,void类型。例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sizeof(max);&#x2F;&#x2F;int max()</span><br><span class="line">sizeof(char_v);&#x2F;&#x2F;char char_v[MAX]，MAX未赋值</span><br><span class="line">sizeof(void);</span><br></pre></td></tr></table></figure>
-以上用法全都是错误的！！！<br><br>以上用法全都是错误的！！！<br><br>以上用法全都是错误的！！！<br></li>
-<li>sizeof的基本用法<br><br>上面的这些7788的东西，说出来没有什么依据，下面通过一些常用的用法来认识sizeof的用法：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sizeof(char);&#x2F;sizeof(signed char)&#x2F;sizeof(unsigned char)</span><br><span class="line">sizeof(p);&#x2F;&#x2F;int *p或者string *p或者char*********</span><br><span class="line">sizeof(a);&#x2F;&#x2F;int a[10]</span><br><span class="line">sizeof(b);&#x2F;&#x2F;char b[]&#x3D;&quot;hello&quot;;</span><br></pre></td></tr></table></figure>
-1和2的结果都是1,不管是什么类型，sizeof后的结果都是取决于操作系统的，在32位操作系统上面就是4，在64位上就是8,sizeof(a)在这里等价于数组长度乘以sizeof(int),换句话说：sizeof(a)=10*sizeof(int)。sizeof(b)等于6，原因是因为字符串后面一般都会有个”\0”，这个。。。预编译符会算进去的！！！！！<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int b[20]&#x3D;&#123;3,4&#125;;</span><br><span class="line">char c[2][3]&#x3D;&#123;&quot;aa&quot;,&quot;bb&quot;&#125;;</span><br><span class="line">sizeof(b);\\20*4</span><br><span class="line">sizeof(c);\\6</span><br></pre></td></tr></table></figure>
-以上的例子可以看的出来sizeof的值并不取决于赋值的情况，数组的大小取决于它在编译时被分配的空间，也就是各维度乘以数组元素的大小。</li>
-<li>函数的sizeof使用方法<br><br>sizeof并不能测量整个函数占用的内存大小！！！！而是测量数组返回值类型的大小。但是要在这期间注意不能对返回值类型为空或者仅仅对一个函数名求值，在函数有参数时，必须加上参数表！！！</li>
-</ul>
-<ol start="2">
-<li>进阶用法 诡异的函数对齐问题<br><br>众所周知，C语言中存在这两种类型：struct和union，而在C++中区别于c语言存在更复杂的class类型，而对这三种数据类型操作时，代码如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">struct sample</span><br><span class="line">&#123;</span><br><span class="line">    double a;</span><br><span class="line">    char b;</span><br><span class="line">    int c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-对于刚开始入门的兄弟来说，sizeof(sample)=sizeof(double)+sizeof(char)+sizeof(int)。。。然而并不是这样子的，编译器对一些变量的起始地址做了“对齐”处理。在默认情况下，编译器规定各成员变量存放的起始地址相对于结构的起始地址的偏移量必须为该变量的类型所占用的字节数的倍数。在32位系统中，具体偏移方法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Char  &#x2F;&#x2F;偏移量必须为sizeof(char)即1的倍数  </span><br><span class="line">int  &#x2F;&#x2F;偏移量必须为sizeof(int)即4的倍数  </span><br><span class="line">float  &#x2F;&#x2F;偏移量必须为sizeof(float)即4的倍数  </span><br><span class="line">double  &#x2F;&#x2F;偏移量必须为sizeof(double)即8的倍数  </span><br><span class="line">Short  &#x2F;&#x2F;偏移量必须为sizeof(short)即2的倍数</span><br></pre></td></tr></table></figure>
-结构体中的变量在申请空间时，是按照顺序来申请空间，并且按照上面所示的对齐方式来调整位置，并且按照上述要求填充空字节。这样子说跟没说一样，所以说个例子吧：<br></li>
-</ol>
-<ul>
-<li>当为上面的sample结构体分配空间时，肯定是先为double类型变量分配内存，他的起始地址和结构体的起始地址相同，偏移量0（正好为sizeof（double）的倍数），它占的内存为8字节这个就不用说了；然后为第二个char类型变量分配内存，可以为它分配的地址相对于结构的偏移地址为8，满足对齐方式可以分配，它占的内存为1个字节，完美！！！！；然后为第三个int类型变量分配内存，下一个可以分配的地址对于结构的偏移量为9，不是sizeof（int）的倍数，为了满足上述对偏移量balabala的诡异约束问题，编译器会填充三个空字节。。。使得下一个可分配地址对于结构原始地址偏移为12，满足要求，分配内存，完美！！！！！所以占用的空间大小为：8+1+3+4=16字节。（这个东西我记得在19年12月份我考浙江大学的计算机系时。。。408考试里考过，当时真的搞不懂，现在终于搞懂了，开心！！！！！！）</li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">C语言开源项目</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E4%BA%8C%E7%AF%87%20%E8%AF%A6%E8%A7%A3sizeof%E5%85%B3%E9%94%AE%E5%AD%97/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-开源项目Tinyhttpd第四篇 详解start_up函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E5%9B%9B%E7%AF%87%20%E8%AF%A6%E8%A7%A3start_up%E5%87%BD%E6%95%B0/">开源项目Tinyhttpd第四篇 详解start_up函数</a>
-    </h1>
-  
-
-        
-        <a href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E5%9B%9B%E7%AF%87%20%E8%AF%A6%E8%A7%A3start_up%E5%87%BD%E6%95%B0/" class="archive-article-date">
-  	<time datetime="2020-05-31T10:06:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-31</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>  大周六的无聊的很，不如来继续看这一大段开源代码，这一次我们按照Github上面那位大佬推荐的步骤来看推荐的步骤来看，先看start_up函数。<br><br>说多无益，先上该段代码：<br></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">int startup(u_short *port)</span><br><span class="line">&#123;</span><br><span class="line">    int httpd &#x3D; 0;</span><br><span class="line">    int on &#x3D; 1;</span><br><span class="line">    struct sockaddr_in name;</span><br><span class="line"></span><br><span class="line">    httpd &#x3D; socket(PF_INET, SOCK_STREAM, 0);</span><br><span class="line">    if (httpd &#x3D;&#x3D; -1)</span><br><span class="line">        error_die(&quot;socket&quot;);</span><br><span class="line">    memset(&amp;name, 0, sizeof(name));</span><br><span class="line">    name.sin_family &#x3D; AF_INET;</span><br><span class="line">    name.sin_port &#x3D; htons(*port);</span><br><span class="line">    name.sin_addr.s_addr &#x3D; htonl(INADDR_ANY);</span><br><span class="line">    if ((setsockopt(httpd, SOL_SOCKET, SO_REUSEADDR, &amp;on, sizeof(on))) &lt; 0)  </span><br><span class="line">    &#123;  </span><br><span class="line">        error_die(&quot;setsockopt failed&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (bind(httpd, (struct sockaddr *)&amp;name, sizeof(name)) &lt; 0)</span><br><span class="line">        error_die(&quot;bind&quot;);</span><br><span class="line">    if (*port &#x3D;&#x3D; 0)  &#x2F;* if dynamically allocating a port *&#x2F;</span><br><span class="line">    &#123;</span><br><span class="line">        socklen_t namelen &#x3D; sizeof(name);</span><br><span class="line">        if (getsockname(httpd, (struct sockaddr *)&amp;name, &amp;namelen) &#x3D;&#x3D; -1)</span><br><span class="line">            error_die(&quot;getsockname&quot;);</span><br><span class="line">        *port &#x3D; ntohs(name.sin_port);</span><br><span class="line">    &#125;</span><br><span class="line">    if (listen(httpd, 5) &lt; 0)</span><br><span class="line">        error_die(&quot;listen&quot;);</span><br><span class="line">    return(httpd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个函数的注释。。。。其实我也看不懂，建议谷歌翻译一下。大概意思是说哈，开启一个线程在参数中的端口不为0的情况下监听一个端口，如果端口为0的话，那么就随机分配一个接口来使用。<br><br>接下来就是socket函数，这个函数是在sys/types.h头文件中定义的一个函数，这个函数的参数如下：<br></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int socket(int domain, int type, int protocol);</span><br></pre></td></tr></table></figure>
-<p>这个函数的作用是用来建立一个协议族为domain，协议类型为type，协议编号为protocol的套接字描述符，如果函数调用成功的话，会返回标示这个套接字的文件描述符，如果失败就会返回-1.<br><br>domain这个参数是用来设置网路通信的域，socket函数根据这个参数来选择通信协议的族，通信协议在头文件sys/socket.h中定义。<br><br>type用于设置套接字通信的类型，主要有SOCKET_STREAM(流式套接字)，SOCK_DGRAM(数据包套接字)等。<br></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SOCK_STREAM&#x2F;&#x2F;tcp连接，提供序列化的可靠的双向连接的字节流</span><br><span class="line">SOCK_DGRAM&#x2F;&#x2F;支持udp连接</span><br><span class="line">SOCK_SEQPACKET&#x2F;&#x2F;序列化包，提供一个序列化的，可靠的，双向的基本连接的数据连接通道，数据长度定常。</span><br><span class="line">SOCK_RAW&#x2F;&#x2F;提供原始网络协议访问</span><br><span class="line">SOCK-RDM&#x2F;&#x2F;提供可靠的数据报文，不过可能数据会有乱序</span><br><span class="line">SOCK_PACKET&#x2F;&#x2F;这是一个专有类型，不过能够在通用程序中使用</span><br></pre></td></tr></table></figure>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">C语言开源项目</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E7%AC%AC%E5%9B%9B%E7%AF%87%20%E8%AF%A6%E8%A7%A3start_up%E5%87%BD%E6%95%B0/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-开源项目Tinyhttpd详解第一篇 详解sockaddr_in，socklen" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/">开源项目Tinyhttpd详解第一篇 详解sockaddr_in，socklen_t，pthread_t</a>
-    </h1>
-  
-
-        
-        <a href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/" class="archive-article-date">
-  	<time datetime="2020-05-31T10:06:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-05-31</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <br>
-[Tinyhttpd](https://github.com/ezlippi/tinyhttpd)<br>
-这个项目是我最近在论坛发现的写的很优秀的一个学习C和Linux方面知识的一个开源代码，大概只有五百多行，但是麻雀虽小,五脏俱全嘛～通过这个程序可以了解服务器程序的本质，何乐不为呢！！！！！<br>
-首先要说明socket是个什么东西呀（主要是担心有些兄弟看不懂。。比如我哈哈哈哈）<br>
-socket，在中国翻译过来叫做套接字，主要是用来进行应用程序间通信的一个数据结构，当初是Unix传承下来的一种重要的信息传递方式，在服务方和客户方进行通信的之前，双方必须知道ip地址和端口号，服务方收到客户方发来的连接请求，故首先向系统申请一个socket，然后服务方以一种emmmmmm类似死循环的方式等待客户方的连接，当客户方在发出连接请求并且服务方收到以后，服务方会选择接受连接或者拒绝连接，如果接受连接，服务方就会自动申请一个新的socket与客户端进行连接，而服务方原来的socket继续在那里死循环（这个意思并不准确呀～心里大概懂那个意思就好啦！！）。<br>
-用我当年追小学姐的事情来举例，我（客户方）知道小学姐的地址和宿舍号，我（客户方）就去西华香馨园宿管大妈那里（申请一个连接请求）进行emmmmmmm亲切友好的交流。。。。，然后宿管大妈（服务方）找到小学姐（申请一个新的socket），我和小学姐一起去恰饭～～～（连接成功）。<br>
-废话不多说，看C程序就要先看main函数啦，具体代码如下：<br>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">    int server_sock &#x3D; -1;</span><br><span class="line">    u_short port &#x3D; 4000;</span><br><span class="line">    int client_sock &#x3D; -1;</span><br><span class="line">    struct sockaddr_in client_name;</span><br><span class="line">    socklen_t  client_name_len &#x3D; sizeof(client_name);</span><br><span class="line">    pthread_t newthread;</span><br><span class="line"></span><br><span class="line">    server_sock &#x3D; startup(&amp;port);</span><br><span class="line">    printf(&quot;httpd running on port %d\n&quot;, port);</span><br><span class="line"></span><br><span class="line">    while (1)</span><br><span class="line">    &#123;</span><br><span class="line">        client_sock &#x3D; accept(server_sock,</span><br><span class="line">                (struct sockaddr *)&amp;client_name,</span><br><span class="line">                &amp;client_name_len);</span><br><span class="line">        if (client_sock &#x3D;&#x3D; -1)</span><br><span class="line">            error_die(&quot;accept&quot;);</span><br><span class="line">        &#x2F;* accept_request(&amp;client_sock); *&#x2F;</span><br><span class="line">        if (pthread_create(&amp;newthread , NULL, (void *)accept_request, (void *)(intptr_t)client_sock) !&#x3D; 0)</span><br><span class="line">            perror(&quot;pthread_create&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    close(server_sock);</span><br><span class="line"></span><br><span class="line">    return(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-这里面有很多个函数和字段很不常见，具体如下：<br>
-1.sockaddr_in
-这个结构体是用来用来处理网路通信的地址，它主要是在头文件<netinet/in.h>或<arpa/inet.h>定义的，这个结构体的内部数据结构主要如下:
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">struct sockaddr_in</span><br><span class="line">&#123;</span><br><span class="line">    sa_family sin_family;</span><br><span class="line">    uint16_t sin_port;</span><br><span class="line">    struct in_addr sin_addr;</span><br><span class="line">    char sin_zero[8];</span><br><span class="line">&#125;</span><br><span class="line">struct in_addr</span><br><span class="line">&#123;</span><br><span class="line">    In_addr_t s_addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-* in_family: 地址家族，可以理解为一系列相似的通信协议的族群，占用2字节，一般它的值主要为AF_INET，AF_INET6和AF_UNSPE。其中AF_INET不能返回任何任何IPV6相关的地址信息，AF_INET6不能返回任何IPV4地址信息，AF_UNSPEC则意味着函数返回的是适用于指定主机名和服务名且适合任何协议族的地址。
-* sin_port: 端口号
-* sin_addr：IPv4／IPv6地址
-* sin_zero[8]:这个奇怪的东西。。。。。我们其实是不用管的，但是说到这个东西必须提到下面这个sockaddr结构，下面这个结构是程序员无法编辑的，即在操作系统中使用的一种socket数据结构，sa_family和上面的定义是一样的，而sa_data则包括上面的端口号和ip地址。sockaddr_in的用处本来是便于程序员进行端口和ip地址的编辑，在系统中会被强行转换成sockaddr，他们两个都是占有16个字节，所以。。。sin_zero[8]就是为了让他们两个保持大小相同而保留的空字节。
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">struct sockaddr</span><br><span class="line">&#123;</span><br><span class="line">    unsigned short sa_family;</span><br><span class="line">    char sa_data[14];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-1. socklen_t <br>
-这个数据结构在网络上资料很乱，总的来说是哈指的是现在socket数据结构的长度，在当初的时候它并不叫这个名字，而是叫做size_t，而size_t类型在64位的系统上并不能和BSD套接字接口所要求的保持一致，故他们改了个名字叫做socklen_t，然而不管怎么变，他们都是int数据类型的马甲罢了。。。。。。。<br>
-2.pthread_t <br>
-用来声明Linux中的线程ID，数据结构为：unsigned long int。。。。。
-
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">C语言开源项目</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/05/31/%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AETinyhttpd%E8%AF%A6%E8%A7%A3%E7%AC%AC%E4%B8%80%E7%AF%87%20%E8%AF%A6%E8%A7%A3sockaddr_in%EF%BC%8Csocklen/">展开全文 >></a>
         </p>
       
 
@@ -1021,11 +870,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">博客搭建</a>
+                <a href="javascript:void(0)" class="js-tag color3">C语言开源项目</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">C语言开源项目</a>
+                <a href="javascript:void(0)" class="js-tag color2">Java算法</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">博客搭建</a>
               </li>
              
               <li class="article-tag-list-item">
